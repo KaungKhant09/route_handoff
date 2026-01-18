@@ -1,0 +1,18 @@
+{% extends 'routes/base.html' %}
+
+{% block title %}Error - Route Handoff{% endblock %}
+
+{% block content %}
+<div class="error-page">
+    <h2>Error</h2>
+    
+    <div class="error-message">
+        <p>{{ error_message }}</p>
+    </div>
+
+    <div class="error-actions">
+        <a href="{% url 'routes:home' %}" class="btn btn-primary">Go to Home</a>
+        <a href="{% url 'routes:select_locations' %}" class="btn btn-secondary">Select Locations</a>
+    </div>
+</div>
+{% endblock %}

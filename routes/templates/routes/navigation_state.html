@@ -1,0 +1,49 @@
+{% extends 'routes/base.html' %}
+
+{% block title %}Navigation State - Route Handoff{% endblock %}
+
+{% block content %}
+<div class="state-view">
+    <h2>Navigation Session State</h2>
+
+    <div class="state-info">
+        <h3>Session Information</h3>
+        <dl>
+            <dt>Session Key:</dt>
+            <dd>{{ nav_session.session_key }}</dd>
+
+            <dt>State:</dt>
+            <dd>{{ nav_session.get_state_display }} ({{ nav_session.state }})</dd>
+
+            <dt>Pickup:</dt>
+            <dd>
+                {% if nav_session.pickup %}
+                    {{ nav_session.pickup.name }} ({{ nav_session.pickup.latitude }}, {{ nav_session.pickup.longitude }})
+                {% else %}
+                    Not selected
+                {% endif %}
+            </dd>
+
+            <dt>Dropoff:</dt>
+            <dd>
+                {% if nav_session.dropoff %}
+                    {{ nav_session.dropoff.name }} ({{ nav_session.dropoff.latitude }}, {{ nav_session.dropoff.longitude }})
+                {% else %}
+                    Not selected
+                {% endif %}
+            </dd>
+
+            <dt>Created:</dt>
+            <dd>{{ nav_session.created_at|date:"Y-m-d H:i:s" }}</dd>
+
+            <dt>Last Updated:</dt>
+            <dd>{{ nav_session.updated_at|date:"Y-m-d H:i:s" }}</dd>
+        </dl>
+    </div>
+
+    <div class="actions">
+        <a href="{% url 'routes:home' %}" class="btn btn-secondary">Back to Home</a>
+        <a href="{% url 'routes:navigate_view' %}" class="btn btn-primary">Go to Navigate</a>
+    </div>
+</div>
+{% endblock %}

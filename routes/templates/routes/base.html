@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Route Handoff{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'routes/css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Route Handoff</h1>
+            <nav>
+                <a href="{% url 'routes:home' %}">Home</a>
+                <a href="{% url 'routes:select_locations' %}">Select Locations</a>
+                <a href="{% url 'routes:navigate_view' %}">Navigate</a>
+                <a href="{% url 'routes:pickup_list' %}">Pickups</a>
+                <a href="{% url 'routes:dropoff_list' %}">Dropoffs</a>
+            </nav>
+        </header>
+
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message message-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Route Handoff</p>
+        </footer>
+    </div>
+
+    {% load static %}
+    <script src="{% static 'routes/js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

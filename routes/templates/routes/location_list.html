@@ -1,0 +1,43 @@
+{% extends 'routes/base.html' %}
+
+{% block title %}{{ location_type|title }} Locations - Route Handoff{% endblock %}
+
+{% block content %}
+<div class="location-list">
+    <div class="header-actions">
+        <h2>{{ location_type|title }} Locations</h2>
+        <a href="{% if location_type == 'pickup' %}{% url 'routes:pickup_add' %}{% else %}{% url 'routes:dropoff_add' %}{% endif %}" class="btn btn-primary">Add New</a>
+    </div>
+
+    {% if locations %}
+        <form method="post" action="{% url 'routes:select_locations' %}">
+            {% csrf_token %}
+            <div class="location-cards">
+                {% for location in locations %}
+                    <div class="location-card {% if current_selection == location.id %}selected{% endif %}">
+                        <label>
+                            <input type="radio" 
+                                   name="{% if location_type == 'pickup' %}pickup_id{% else %}dropoff_id{% endif %}" 
+                                   value="{{ location.id }}"
+                                   {% if current_selection == location.id %}checked{% endif %}>
+                            <div class="card-content">
+                                <h3>{{ location.name }}</h3>
+                                <p>Lat: {{ location.latitude }}, Lng: {{ location.longitude }}</p>
+                                <p class="created">Created: {{ location.created_at|date:"M d, Y" }}</p>
+                            </div>
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Select</button>
+                <a href="{% url 'routes:select_locations' %}" class="btn btn-secondary">Back to Selection</a>
+            </div>
+        </form>
+    {% else %}
+        <div class="empty-state">
+            <p>No {{ location_type }} locations yet. <a href="{% if location_type == 'pickup' %}{% url 'routes:pickup_add' %}{% else %}{% url 'routes:dropoff_add' %}{% endif %}">Add one now</a>.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

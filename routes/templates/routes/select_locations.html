@@ -1,0 +1,75 @@
+{% extends 'routes/base.html' %}
+
+{% block title %}Select Locations - Route Handoff{% endblock %}
+
+{% block content %}
+<div class="select-locations">
+    <h2>Select Pickup and Dropoff Locations</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="location-selection-grid">
+            <div class="selection-section">
+                <h3>Pickup Location</h3>
+                {% if pickups %}
+                    <div class="location-cards">
+                        {% for pickup in pickups %}
+                            <div class="location-card {% if nav_session.pickup_id == pickup.id %}selected{% endif %}">
+                                <label>
+                                    <input type="radio" name="pickup_id" value="{{ pickup.id }}"
+                                           {% if nav_session.pickup_id == pickup.id %}checked{% endif %}>
+                                    <div class="card-content">
+                                        <h4>{{ pickup.name }}</h4>
+                                        <p>Lat: {{ pickup.latitude }}, Lng: {{ pickup.longitude }}</p>
+                                    </div>
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty-message">No pickup locations. <a href="{% url 'routes:pickup_add' %}">Add one</a>.</p>
+                {% endif %}
+                <a href="{% url 'routes:pickup_add' %}" class="btn btn-link">+ Add Pickup Location</a>
+            </div>
+
+            <div class="selection-section">
+                <h3>Dropoff Location</h3>
+                {% if dropoffs %}
+                    <div class="location-cards">
+                        {% for dropoff in dropoffs %}
+                            <div class="location-card {% if nav_session.dropoff_id == dropoff.id %}selected{% endif %}">
+                                <label>
+                                    <input type="radio" name="dropoff_id" value="{{ dropoff.id }}"
+                                           {% if nav_session.dropoff_id == dropoff.id %}checked{% endif %}>
+                                    <div class="card-content">
+                                        <h4>{{ dropoff.name }}</h4>
+                                        <p>Lat: {{ dropoff.latitude }}, Lng: {{ dropoff.longitude }}</p>
+                                    </div>
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty-message">No dropoff locations. <a href="{% url 'routes:dropoff_add' %}">Add one</a>.</p>
+                {% endif %}
+                <a href="{% url 'routes:dropoff_add' %}" class="btn btn-link">+ Add Dropoff Location</a>
+            </div>
+        </div>
+
+        {% if nav_session.pickup %}
+            <div class="current-selections">
+                <h3>Current Selections:</h3>
+                <p><strong>Pickup:</strong> {{ nav_session.pickup.name }}</p>
+                {% if nav_session.dropoff %}
+                    <p><strong>Dropoff:</strong> {{ nav_session.dropoff.name }}</p>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Confirm Selections</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

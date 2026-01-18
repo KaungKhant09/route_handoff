@@ -1,0 +1,99 @@
+{% extends 'routes/base.html' %}
+
+{% block title %}Navigate - Route Handoff{% endblock %}
+
+{% block content %}
+<div class="navigate-page">
+    <h2>Navigation</h2>
+
+    <div class="current-selections">
+        <h3>Selected Locations:</h3>
+        <p><strong>Pickup:</strong> {{ navigation_session.pickup.name }} ({{ navigation_session.pickup.latitude }}, {{ navigation_session.pickup.longitude }})</p>
+        {% if navigation_session.dropoff %}
+            <p><strong>Dropoff:</strong> {{ navigation_session.dropoff.name }} ({{ navigation_session.dropoff.latitude }}, {{ navigation_session.dropoff.longitude }})</p>
+        {% else %}
+            <p><strong>Dropoff:</strong> Not selected</p>
+        {% endif %}
+        <p><strong>Status:</strong> {{ navigation_session.get_state_display }}</p>
+    </div>
+
+    {% if navigation_session.state == 'navigated_to_dropoff' %}
+        <div class="completed-message">
+            <p>Navigation completed! Both pickup and dropoff have been navigated to.</p>
+        </div>
+    {% endif %}
+
+    <div class="navigate-actions">
+        {% if navigation_session.state != 'navigated_to_dropoff' %}
+            <form method="post" action="{% url 'routes:navigate_action' %}" id="navigate-form">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-navigate" id="navigate-button">{{ button_label }}</button>
+            </form>
+        {% else %}
+            <div class="completed-state">
+                <p>Navigation flow completed. You can start a new navigation by selecting locations again.</p>
+                <a href="{% url 'routes:start_over' %}" class="btn btn-primary">Start Over</a>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if navigation_session.state == 'navigated_to_pickup' and not navigation_session.dropoff %}
+        <div class="info-message">
+            <p>Pickup navigation completed. Please select a dropoff location to continue.</p>
+            <a href="{% url 'routes:select_locations' %}" class="btn btn-link">Select Dropoff</a>
+        </div>
+    {% endif %}
+
+    <div class="navigate-footer">
+        <a href="{% url 'routes:start_over' %}" class="btn btn-secondary">Start Over</a>
+    </div>
+</div>
+
+{% if auto_navigate_url %}
+<script>
+    // Auto-open Google Maps in a separate window/tab after state update
+    // This keeps the app page open so user can click "Navigate" again
+    (function() {
+        var mapsUrl = '{{ auto_navigate_url|escapejs }}';
+        var fallbackUrl = '{{ auto_navigate_url_web_fallback|escapejs }}';
+        var isDeepLink = mapsUrl.indexOf(':') > 0 && mapsUrl.indexOf(':') < 10;
+        
+        // Small delay to ensure page renders and button text updates
+        setTimeout(function() {
+            if (isDeepLink) {
+                // Deep link (mobile): try to open in new window, fallback to direct click
+                // On mobile, deep links open the app but may navigate browser away
+                // Creating an <a> with target="_blank" might help keep the page
+                try {
+                    var link = document.createElement('a');
+                    link.href = mapsUrl;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                    
+                    // Clean up after a moment
+                    setTimeout(function() {
+                        if (document.body.contains(link)) {
+                            document.body.removeChild(link);
+                        }
+                    }, 100);
+                } catch (e) {
+                    // Fallback: direct navigation (may navigate away, but works)
+                    window.location.href = mapsUrl;
+                }
+            } else {
+                // Web URL (desktop): open in new tab using window.open
+                var newWindow = window.open(mapsUrl, '_blank', 'noopener,noreferrer');
+                
+                // If popup was blocked, user can manually click a link
+                if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                    console.warn('Popup blocked. Maps may not have opened in a new tab.');
+                }
+            }
+        }, 300);
+    })();
+</script>
+{% endif %}
+{% endblock %}
